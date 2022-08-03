@@ -13,16 +13,34 @@ const mmLanguage: SupportLanguage = {
     parsers: ['mm-parse'],
 };
 
-export const parse = (text: string) => {
-    const parseTree: string[] = [];
-    const tokenpop = checkmm.tokens.pop;
-    checkmm.tokens.pop = () => {
-        const token = tokenpop();
-        if (token) {
-            parseTree.push(token);
+class TokenArray extends Array<string> {
+    constructor(private onPop: (token: string) => void) {
+        super();
+    }
+    front(): string {
+        return this[this.length - 1];
+    }
+    empty(): boolean {
+        return !this.length;
+    }
+    pop() {
+        const token = super.pop();
+        if (token !== undefined) {
+            this.onPop(token);
         }
         return token;
+    }
+}
+
+export const parse = (text: string) => {
+    const parseTree: string[] = [];
+
+    checkmm.createTokenArray = () => {
+        return new TokenArray(token => parseTree.push(token));
     };
+
+    checkmm.tokens = checkmm.createTokenArray();
+
     checkmm.data = text;
     while (checkmm.readtokenstofileinclusion()) {}
     checkmm.processtokens();
