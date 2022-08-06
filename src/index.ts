@@ -1,6 +1,6 @@
 import { Parser, Plugin, Printer, SupportLanguage } from 'prettier';
-import checkmm from 'checkmm';
-import { TokenArray } from 'checkmm/dist/tokens';
+import { parse } from './parse';
+import { print } from './print';
 
 interface AstNode {
     type: string;
@@ -14,35 +14,6 @@ const mmLanguage: SupportLanguage = {
     parsers: ['mm-parse'],
 };
 
-class MonitoredTokenArray extends TokenArray {
-    constructor(private onPop: (token: string) => void) {
-        super();
-    }
-    pop() {
-        const token = super.pop();
-        if (token !== undefined) {
-            this.onPop(token);
-        }
-        return token;
-    }
-}
-
-export const parse = (text: string) => {
-    const parseTree: string[] = [];
-
-    checkmm.createTokenArray = () => {
-        return new MonitoredTokenArray(token => parseTree.push(token));
-    };
-
-    checkmm.tokens = checkmm.createTokenArray();
-
-    checkmm.data = text;
-    while (checkmm.readtokenstofileinclusion()) {}
-    checkmm.processtokens();
-
-    return parseTree;
-};
-
 export const mmParser: Parser<any> = {
     parse,
     astFormat: 'mm-ast',
@@ -50,7 +21,7 @@ export const mmParser: Parser<any> = {
     locEnd: () => 0,
 };
 
-const mmPrinter: Printer<AstNode> = { print: ast => JSON.stringify(ast, null, 2) };
+const mmPrinter: Printer<AstNode> = { print };
 
 const plugin: Plugin<AstNode> = {
     languages: [mmLanguage],
