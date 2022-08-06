@@ -1,5 +1,6 @@
 import { Parser, Plugin, Printer, SupportLanguage } from 'prettier';
 import checkmm from 'checkmm';
+import { TokenArray } from 'checkmm/dist/tokens';
 
 interface AstNode {
     type: string;
@@ -13,15 +14,9 @@ const mmLanguage: SupportLanguage = {
     parsers: ['mm-parse'],
 };
 
-class TokenArray extends Array<string> {
+class MonitoredTokenArray extends TokenArray {
     constructor(private onPop: (token: string) => void) {
         super();
-    }
-    front(): string {
-        return this[this.length - 1];
-    }
-    empty(): boolean {
-        return !this.length;
     }
     pop() {
         const token = super.pop();
@@ -36,7 +31,7 @@ export const parse = (text: string) => {
     const parseTree: string[] = [];
 
     checkmm.createTokenArray = () => {
-        return new TokenArray(token => parseTree.push(token));
+        return new MonitoredTokenArray(token => parseTree.push(token));
     };
 
     checkmm.tokens = checkmm.createTokenArray();
