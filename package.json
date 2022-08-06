@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "dist/index.js",
   "scripts": {
-    "debug": "ts-node src/test.ts",
+    "debug": "ts-node src/debug.ts",
     "example": "tsc && prettier --plugin . examples/demo0.mm"
   },
   "repository": {
