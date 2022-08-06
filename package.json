@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/Antony74/prettier-plugin-mm#readme",
   "dependencies": {
-    "checkmm": "github:Antony74/checkmm-ts"
+    "checkmm": "github:Antony74/checkmm-ts#build"
   },
   "devDependencies": {
     "@types/node": "^18.0.6",
