@@ -17,13 +17,9 @@ class MonitoredTokenArray extends TokenArray {
 export const parse = (text: string) => {
     const parseTree: string[] = [];
 
-    checkmm.createTokenArray = () => {
-        return new MonitoredTokenArray(token => parseTree.push(token));
-    };
-
-    checkmm.tokens = checkmm.createTokenArray();
-
+    checkmm.tokens = new MonitoredTokenArray(token => parseTree.push(token));
     checkmm.data = text;
+
     while (checkmm.readtokenstofileinclusion()) {}
     checkmm.processtokens();
 
