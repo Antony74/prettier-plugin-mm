@@ -1,5 +1,6 @@
 import checkmm from 'checkmm';
 import { TokenArray } from 'checkmm/dist/tokens';
+import { MMNode, MMNodeMM } from './parseTreeFormat';
 
 interface TokenArrayEvents {
     onToken(token: string): boolean;
@@ -37,11 +38,11 @@ class MonitoredTokenArray extends TokenArray {
     }
 }
 
-export const parse = (text: string) => {
-    const parseTree: string[] = [];
+export const parse = (text: string): MMNodeMM => {
     const comments: string[] = [];
+    const stack: MMNode[] = [{ type: 'root', children: [] }];
 
-    const readcomment = checkmm.readcomment;
+    const { readcomment, parsec } = checkmm;
 
     checkmm.readcomment = () => {
         const comment = readcomment();
@@ -50,9 +51,16 @@ export const parse = (text: string) => {
         return comment;
     };
 
+    checkmm.parsec = () => {
+        stack.push({type: '$c', children: []})
+        parsec();
+        const c: any = stack.pop();
+        stack[stack.length - 1].children.push(c);
+    }
+
     checkmm.tokens = new MonitoredTokenArray({
         onToken: token => token !== '$(',
-        onPop: token => parseTree.push(token),
+        onPop: token => stack[stack.length - 1].children.push(token),
     });
 
     checkmm.data = text;
@@ -60,5 +68,5 @@ export const parse = (text: string) => {
     while (checkmm.readtokenstofileinclusion()) {}
     checkmm.processtokens();
 
-    return parseTree;
+    return stack[0] as MMNodeMM;
 };

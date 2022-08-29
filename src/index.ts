@@ -1,6 +1,6 @@
 import { Parser, Plugin, Printer, SupportLanguage } from 'prettier';
 import { parse } from './parse';
-import { AstNode } from './parseTreeFormat';
+import { MMNodeMM } from './parseTreeFormat';
 import { print } from './print';
 
 const mmLanguage: SupportLanguage = {
@@ -16,9 +16,9 @@ export const mmParser: Parser<any> = {
     locEnd: () => 0,
 };
 
-const mmPrinter: Printer<AstNode> = { print };
+const mmPrinter: Printer<MMNodeMM> = { print };
 
-const plugin: Plugin<AstNode> = {
+const plugin: Plugin<MMNodeMM> = {
     languages: [mmLanguage],
     parsers: { 'mm-parse': mmParser },
     printers: { 'mm-ast': mmPrinter },

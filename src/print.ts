@@ -1,13 +1,23 @@
 import prettier from 'prettier';
-import { AstNode } from './parseTreeFormat';
+import { MMNode, MMNodeMM } from './parseTreeFormat';
 
 const builders = prettier.doc.builders;
 
-const printNode = (ast: any): prettier.Doc => {
-    return builders.join(' ', ast);
-}
+const printNode = (node: MMNode): prettier.Doc => {
+    const array = (node.children ?? []).map(child => {
+        if (typeof child === 'string') {
+            return child;
+        } else if (child.type === '$(') {
+            return child.text;
+        } else {
+            return printNode(child);
+        }
+    });
 
-export const print = (ast: prettier.AstPath<AstNode>, options: prettier.ParserOptions): string => {
+    return builders.join(' ', array);
+};
+
+export const print = (ast: prettier.AstPath<MMNodeMM>, options: prettier.ParserOptions): string => {
     const rootNode = ast.getValue();
 
     if (rootNode === null) {
@@ -17,4 +27,4 @@ export const print = (ast: prettier.AstPath<AstNode>, options: prettier.ParserOp
     const doc = printNode(rootNode);
     const output = prettier.doc.printer.printDocToString(doc, options).formatted;
     return output;
-}
+};
