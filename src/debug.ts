@@ -2,7 +2,8 @@ import fs from 'fs/promises';
 import path from 'path';
 import { parse } from './parse';
 import { print } from './print';
-import prettier from 'prettier';
+import prettier, { AstPath } from 'prettier';
+import { AstNode } from './parseTreeFormat';
 
 const main = async () => {
     const configFile = await prettier.resolveConfigFile();
@@ -21,8 +22,7 @@ const main = async () => {
     const text = await fs.readFile(filename, { encoding: 'utf-8' });
 
     const parseTree = parse(text);
-    const doc = print(parseTree, options);
-    const output = prettier.doc.printer.printDocToString(doc, options).formatted;
+    const output = print(new AstPath<AstNode>(parseTree), options);
     console.log(output);
 };
 

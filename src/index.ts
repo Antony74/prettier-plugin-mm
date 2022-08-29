@@ -1,12 +1,7 @@
 import { Parser, Plugin, Printer, SupportLanguage } from 'prettier';
 import { parse } from './parse';
+import { AstNode } from './parseTreeFormat';
 import { print } from './print';
-
-interface AstNode {
-    type: string;
-    value: string;
-    children?: AstNode[];
-}
 
 const mmLanguage: SupportLanguage = {
     extensions: ['.mm'],
