@@ -9,7 +9,7 @@ const mmLanguage: SupportLanguage = {
     parsers: ['mm-parse'],
 };
 
-export const mmParser: Parser<any> = {
+export const mmParser: Parser<MMNodeMM> = {
     parse,
     astFormat: 'mm-ast',
     locStart: () => 0,

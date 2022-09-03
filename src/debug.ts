@@ -11,7 +11,7 @@ const main = async () => {
         throw new Error('No config file');
     }
 
-    const options: any = await prettier.resolveConfig(configFile!);
+    const options = await prettier.resolveConfig(configFile!);
 
     if (options === null) {
         throw new Error('No options');
@@ -21,7 +21,7 @@ const main = async () => {
     const text = await fs.readFile(filename, { encoding: 'utf-8' });
 
     const parseTree = parse(text);
-    const output = print({ getValue: () => parseTree } as prettier.AstPath, options);
+    const output = print({ getValue: () => parseTree } as prettier.AstPath, options as prettier.ParserOptions);
     console.log(output);
 };
 
