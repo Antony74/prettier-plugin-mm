@@ -1,36 +1,40 @@
 {
-  "name": "prettier-plugin-mm",
-  "version": "1.0.0",
-  "main": "dist/index.js",
-  "scripts": {
-    "debug": "ts-node src/debug.ts",
-    "example": "tsc && prettier --plugin . examples/demo0.mm"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Antony74/prettier-plugin-mm.git"
-  },
-  "author": "Antony74",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/Antony74/prettier-plugin-mm/issues"
-  },
-  "homepage": "https://github.com/Antony74/prettier-plugin-mm#readme",
-  "dependencies": {
-    "checkmm": "github:Antony74/checkmm-ts#build"
-  },
-  "devDependencies": {
-    "@types/node": "^18.0.6",
-    "@types/prettier": "^2.6.3",
-    "prettier": "^2.7.1",
-    "typescript": "^4.7.4"
-  },
-  "prettier": {
-    "semi": true,
-    "singleQuote": true,
-    "printWidth": 120,
-    "tabWidth": 4,
-    "trailingComma": "all",
-    "arrowParens": "avoid"
-  }
+    "name": "prettier-plugin-mm",
+    "version": "1.0.0",
+    "main": "dist/index.js",
+    "scripts": {
+        "debug": "ts-node src/debug.ts",
+        "example": "tsc && prettier --plugin . examples/demo0.mm",
+        "lint": "eslint ./src --ext .js,.jsx,.ts,.tsx"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Antony74/prettier-plugin-mm.git"
+    },
+    "author": "Antony74",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/Antony74/prettier-plugin-mm/issues"
+    },
+    "homepage": "https://github.com/Antony74/prettier-plugin-mm#readme",
+    "dependencies": {
+        "checkmm": "github:Antony74/checkmm-ts#build"
+    },
+    "devDependencies": {
+        "@types/node": "^18.0.6",
+        "@types/prettier": "^2.6.3",
+        "@typescript-eslint/eslint-plugin": "^5.23.0",
+        "@typescript-eslint/parser": "^5.23.0",
+        "eslint": "^8.15.0",
+        "prettier": "^2.7.1",
+        "typescript": "^4.7.4"
+    },
+    "prettier": {
+        "semi": true,
+        "singleQuote": true,
+        "printWidth": 120,
+        "tabWidth": 4,
+        "trailingComma": "all",
+        "arrowParens": "avoid"
+    }
 }
