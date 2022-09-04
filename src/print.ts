@@ -42,7 +42,7 @@ const printmm = (node: MMNodeMM): prettier.Doc => {
         builders.hardline,
         node.children.map(child => {
             if (typeof child === 'string') {
-                throw new Error('String found in root document');
+                throw new Error(`String '${child}' found in root document`);
             }
 
             switch (child.type) {

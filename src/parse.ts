@@ -51,6 +51,12 @@ export const parse = (text: string): MMNodeMM => {
             throw new Error(`parselabel unexpected parent node type ${parent.type}`);
         }
 
+        const labelToken = parent.children.pop();
+
+        if (labelToken !== label) {
+            throw new Error('label expected to match token');
+        }
+
         const mmlabel: MMNodeLabel = { type: 'label', label, children: [] };
         stack.push(mmlabel);
         parselabel(label);
