@@ -35,6 +35,14 @@
         "printWidth": 120,
         "tabWidth": 4,
         "trailingComma": "all",
-        "arrowParens": "avoid"
+        "arrowParens": "avoid",
+        "overrides": [
+            {
+                "files": "*.mm",
+                "options": {
+                    "printWidth": 80
+                }
+            }
+        ]
     }
 }

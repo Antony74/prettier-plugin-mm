@@ -43,20 +43,20 @@ export const parse = (text: string): MMNodeMM => {
         stack.pop();
         parent.children.push(v);
     };
-    
+
     checkmm.parselabel = (label: string) => {
         const parent = stack.top();
 
         if (parent.type !== 'root') {
-            throw new Error(`parselabel unexpected parent node type ${parent.type}`)
+            throw new Error(`parselabel unexpected parent node type ${parent.type}`);
         }
 
-        const mmlabel: MMNodeLabel = {type: 'label', label, children: []};
+        const mmlabel: MMNodeLabel = { type: 'label', label, children: [] };
         stack.push(mmlabel);
         parselabel(label);
         stack.pop();
         parent.children.push(mmlabel);
-    }
+    };
 
     checkmm.tokens = new MonitoredTokenArray({
         onToken: token => {
@@ -79,11 +79,10 @@ export const parse = (text: string): MMNodeMM => {
             switch (token) {
                 case '$c':
                 case '$v':
+                case '$.':
                     break;
                 default:
-                    if (parent.type !== 'root') {
-                        parent.children.push(token);
-                    }
+                    parent.children.push(token);
             }
         },
     });

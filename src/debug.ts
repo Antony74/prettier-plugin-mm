@@ -22,7 +22,7 @@ const main = async () => {
 
     const parseTree = parse(text);
     const output = print({ getValue: () => parseTree } as prettier.AstPath, options as prettier.ParserOptions);
-//    console.log(output);
+    console.log(output);
 };
 
 main();

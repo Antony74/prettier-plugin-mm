@@ -21,7 +21,7 @@ export interface MMNodeLabel {
 
 export interface MMNodeMM {
     type: 'root';
-    children: (MMNodeC | MMNodeV | MMNodeLabel | MMComment )[];
+    children: (MMNodeC | MMNodeV | MMNodeLabel | MMComment | string)[];
 }
 
 export type MMNode = MMNodeMM | MMNodeC | MMNodeV | MMNodeLabel;

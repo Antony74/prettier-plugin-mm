@@ -22,6 +22,7 @@ const plugin: Plugin<MMNodeMM> = {
     languages: [mmLanguage],
     parsers: { 'mm-parse': mmParser },
     printers: { 'mm-ast': mmPrinter },
+    defaultOptions: { printWidth: 80 },
 };
 
 module.exports = plugin;
