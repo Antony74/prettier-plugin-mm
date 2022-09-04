@@ -13,9 +13,15 @@ export interface MMNodeV {
     children: (string | MMComment)[];
 }
 
-export interface MMNodeMM {
-    type: 'root';
-    children: (MMNodeC | MMNodeV | MMComment | string)[];
+export interface MMNodeLabel {
+    type: 'label';
+    label: string;
+    children: (string | MMComment)[];
 }
 
-export type MMNode = MMNodeMM | MMNodeC | MMNodeV;
+export interface MMNodeMM {
+    type: 'root';
+    children: (MMNodeC | MMNodeV | MMNodeLabel | MMComment )[];
+}
+
+export type MMNode = MMNodeMM | MMNodeC | MMNodeV | MMNodeLabel;

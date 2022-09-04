@@ -1,13 +1,13 @@
 import checkmm from 'checkmm';
 import { MonitoredTokenArray } from './MonitoredTokenArray';
-import { MMNode, MMNodeC, MMNodeMM, MMNodeV } from './parseTreeFormat';
+import { MMNode, MMNodeC, MMNodeLabel, MMNodeMM, MMNodeV } from './parseTreeFormat';
 
 export const parse = (text: string): MMNodeMM => {
     const comments: string[] = [];
     const mmNode: MMNode = { type: 'root', children: [] };
     const stack = checkmm.std.createstack<MMNode>([mmNode]);
 
-    const { readcomment, parsec, parsev } = checkmm;
+    const { readcomment, parsec, parsev, parselabel } = checkmm;
 
     checkmm.readcomment = () => {
         const comment = readcomment();
@@ -37,11 +37,25 @@ export const parse = (text: string): MMNodeMM => {
             throw new Error(`parsev unexpected parent node type ${parent.type}`);
         }
 
-        const v: MMNodeV = {type: '$v', children: []};
+        const v: MMNodeV = { type: '$v', children: [] };
         stack.push(v);
         parsev();
         stack.pop();
         parent.children.push(v);
+    };
+    
+    checkmm.parselabel = (label: string) => {
+        const parent = stack.top();
+
+        if (parent.type !== 'root') {
+            throw new Error(`parselabel unexpected parent node type ${parent.type}`)
+        }
+
+        const mmlabel: MMNodeLabel = {type: 'label', label, children: []};
+        stack.push(mmlabel);
+        parselabel(label);
+        stack.pop();
+        parent.children.push(mmlabel);
     }
 
     checkmm.tokens = new MonitoredTokenArray({
@@ -59,7 +73,19 @@ export const parse = (text: string): MMNodeMM => {
 
             return true;
         },
-        onPop: token => stack.top().children.push(token),
+        onPop: token => {
+            const parent = stack.top();
+
+            switch (token) {
+                case '$c':
+                case '$v':
+                    break;
+                default:
+                    if (parent.type !== 'root') {
+                        parent.children.push(token);
+                    }
+            }
+        },
     });
 
     checkmm.data = text;
