@@ -1,42 +1,6 @@
 import checkmm from 'checkmm';
-import { TokenArray } from 'checkmm/dist/tokens';
-import { MMNode, MMNodeMM } from './parseTreeFormat';
-
-interface TokenArrayEvents {
-    onToken(token: string): boolean;
-    onPop(token: string): void;
-}
-
-class MonitoredTokenArray extends TokenArray {
-    constructor(private events: TokenArrayEvents) {
-        super();
-    }
-    handleDiscards() {
-        for (;;) {
-            const token = super.front();
-            if (token !== undefined) {
-                const useToken = this.events.onToken(token);
-                if (!useToken) {
-                    super.pop();
-                    continue;
-                }
-            }
-            return token;
-        }
-    }
-    front() {
-        this.handleDiscards();
-        return super.front();
-    }
-    pop() {
-        this.handleDiscards();
-        const token = super.pop();
-        if (token !== undefined) {
-            this.events.onPop(token);
-        }
-        return token;
-    }
-}
+import { MonitoredTokenArray } from './MonitoredTokenArray';
+import { MMNode, MMNodeC, MMNodeMM } from './parseTreeFormat';
 
 export const parse = (text: string): MMNodeMM => {
     const comments: string[] = [];
@@ -52,10 +16,11 @@ export const parse = (text: string): MMNodeMM => {
     };
 
     checkmm.parsec = () => {
-        stack.push({type: '$c', children: []})
+        const c: MMNodeC = {type: '$c', children: []};
+        stack.push(c)
         parsec();
-        const c: any = stack.pop();
-        stack[stack.length - 1].children.push(c);
+        stack.pop();
+        stack[stack.length - 1].children.push(c as any);
     }
 
     checkmm.tokens = new MonitoredTokenArray({
