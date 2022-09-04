@@ -47,7 +47,7 @@ export const parse = (text: string): MMNodeMM => {
     checkmm.parselabel = (label: string) => {
         const parent = stack.top();
 
-        if (parent.type !== 'root') {
+        if (parent.type !== 'root' && parent.type !== '${') {
             throw new Error(`parselabel unexpected parent node type ${parent.type}`);
         }
 
@@ -66,29 +66,58 @@ export const parse = (text: string): MMNodeMM => {
 
     checkmm.tokens = new MonitoredTokenArray({
         onToken: token => {
-            if (token === '$(') {
-                const comment = comments.pop();
+            switch (token) {
+                case '$(': {
+                    const comment = comments.pop();
 
-                if (typeof comment !== 'string') {
-                    throw new Error('Somehow ran out of comments');
+                    if (typeof comment !== 'string') {
+                        throw new Error('Somehow ran out of comments');
+                    }
+
+                    stack.top().children.push({ type: '$(', text: comment });
+                    return false;
                 }
-
-                stack.top().children.push({ type: '$(', text: comment });
-                return false;
             }
 
             return true;
         },
         onPop: token => {
-            const parent = stack.top();
-
             switch (token) {
                 case '$c':
                 case '$v':
                 case '$.':
                     break;
-                default:
+                case '${': {
+                    const parent = stack.top();
+
+                    if (parent.type !== 'root' && parent.type !== '${') {
+                        throw new Error('Unexpected scope');
+                    }
+
+                    stack.push({ type: '${', children: [] });
+                    break;
+                }
+                case '$}': {
+                    console.log(stack.toArray());
+
+                    const scope = stack.pop();
+                    const parent = stack.top();
+
+                    if (parent.type !== 'root' && parent.type !== '${') {
+                        throw new Error('Unexpected scope');
+                    }
+
+                    if (!scope || scope.type !== '${') {
+                        throw new Error('Expected scope');
+                    }
+
+                    parent.children.push(scope);
+                    break;
+                }
+                default: {
+                    const parent = stack.top();
                     parent.children.push(token);
+                }
             }
         },
     });
