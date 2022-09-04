@@ -4,7 +4,8 @@ import { MMNode, MMNodeC, MMNodeMM } from './parseTreeFormat';
 
 export const parse = (text: string): MMNodeMM => {
     const comments: string[] = [];
-    const stack: MMNode[] = [{ type: 'root', children: [] }];
+    const mmNode: MMNode = { type: 'root', children: [] };
+    const stack = checkmm.std.createstack<MMNode>([mmNode]);
 
     const { readcomment, parsec } = checkmm;
 
@@ -20,12 +21,12 @@ export const parse = (text: string): MMNodeMM => {
         stack.push(c)
         parsec();
         stack.pop();
-        stack[stack.length - 1].children.push(c as any);
+        stack.top().children.push(c as any);
     }
 
     checkmm.tokens = new MonitoredTokenArray({
         onToken: token => token !== '$(',
-        onPop: token => stack[stack.length - 1].children.push(token),
+        onPop: token => stack.top().children.push(token),
     });
 
     checkmm.data = text;
@@ -33,5 +34,5 @@ export const parse = (text: string): MMNodeMM => {
     while (checkmm.readtokenstofileinclusion()) {}
     checkmm.processtokens();
 
-    return stack[0] as MMNodeMM;
+    return mmNode;
 };
