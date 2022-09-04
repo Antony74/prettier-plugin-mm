@@ -98,8 +98,6 @@ export const parse = (text: string): MMNodeMM => {
                     break;
                 }
                 case '$}': {
-                    console.log(stack.toArray());
-
                     const scope = stack.pop();
                     const parent = stack.top();
 
@@ -130,7 +128,7 @@ export const parse = (text: string): MMNodeMM => {
 
     checkmm.processtokens();
 
-    console.log(JSON.stringify(mmNode, null, 2));
+//    console.log(JSON.stringify(mmNode, null, 2));
 
     return mmNode;
 };

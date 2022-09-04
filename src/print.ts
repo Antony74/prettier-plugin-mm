@@ -1,28 +1,30 @@
 import prettier from 'prettier';
 import { MMComment, MMNodeC, MMNodeLabel, MMNodeMM, MMNodeScope, MMNodeV } from './parseTreeFormat';
 
-const builders = prettier.doc.builders;
+const { group, hardline, join, line } = prettier.doc.builders;
 
 const printComment = (node: MMComment): prettier.Doc => {
-    return builders.join('', ['$(', node.text, '$)']);
+    return join('', ['$(', node.text, '$)']);
 };
 
 const printc = (node: MMNodeC): prettier.Doc => {
-    return builders.join(
-        builders.softline,
-        node.children.map(child => {
-            if (typeof child === 'string') {
-                return child;
-            } else {
-                return printComment(child);
-            }
-        }),
+    return group(
+        join(
+            line,
+            node.children.map(child => {
+                if (typeof child === 'string') {
+                    return child;
+                } else {
+                    return printComment(child);
+                }
+            }),
+        ),
     );
 };
 
 const printv = (node: MMNodeV): prettier.Doc => {
-    return builders.join(
-        builders.softline,
+    return join(
+        line,
         node.children.map(child => {
             if (typeof child === 'string') {
                 return child;
@@ -34,12 +36,12 @@ const printv = (node: MMNodeV): prettier.Doc => {
 };
 
 const printlabel = (node: MMNodeLabel) => {
-    return builders.join(builders.softline, [node.label, 'TO DO - labels']);
+    return join(line, [node.label, 'TO DO - labels']);
 };
 
 const printScopeChildren = (node: MMNodeMM | MMNodeScope): prettier.Doc => {
-    return builders.join(
-        builders.hardline,
+    return join(
+        hardline,
         node.children.map(child => {
             if (typeof child === 'string') {
                 throw new Error(`String '${child}' found in root document`);
@@ -62,7 +64,7 @@ const printScopeChildren = (node: MMNodeMM | MMNodeScope): prettier.Doc => {
 };
 
 const printscope = (node: MMNodeScope): prettier.Doc => {
-    return builders.join(builders.hardline, ['${', printScopeChildren(node), '$}']);
+    return join(hardline, ['${', printScopeChildren(node), '$}']);
 };
 
 const printmm = (node: MMNodeMM): prettier.Doc => {
