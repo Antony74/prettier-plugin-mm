@@ -1,13 +1,13 @@
 import checkmm from 'checkmm';
 import { MonitoredTokenArray } from './MonitoredTokenArray';
-import { MMNode, MMNodeC, MMNodeMM } from './parseTreeFormat';
+import { MMNode, MMNodeC, MMNodeMM, MMNodeV } from './parseTreeFormat';
 
 export const parse = (text: string): MMNodeMM => {
     const comments: string[] = [];
     const mmNode: MMNode = { type: 'root', children: [] };
     const stack = checkmm.std.createstack<MMNode>([mmNode]);
 
-    const { readcomment, parsec } = checkmm;
+    const { readcomment, parsec, parsev } = checkmm;
 
     checkmm.readcomment = () => {
         const comment = readcomment();
@@ -29,6 +29,20 @@ export const parse = (text: string): MMNodeMM => {
         stack.pop();
         parent.children.push(c);
     };
+
+    checkmm.parsev = () => {
+        const parent = stack.top();
+
+        if (parent.type !== 'root') {
+            throw new Error(`parsev unexpected parent node type ${parent.type}`);
+        }
+
+        const v: MMNodeV = {type: '$v', children: []};
+        stack.push(v);
+        parsev();
+        stack.pop();
+        parent.children.push(v);
+    }
 
     checkmm.tokens = new MonitoredTokenArray({
         onToken: token => {
@@ -55,6 +69,8 @@ export const parse = (text: string): MMNodeMM => {
     comments.reverse();
 
     checkmm.processtokens();
+
+    console.log(JSON.stringify(mmNode, null, 2));
 
     return mmNode;
 };

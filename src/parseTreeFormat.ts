@@ -8,9 +8,14 @@ export interface MMNodeC {
     children: (string | MMComment)[];
 }
 
-export interface MMNodeMM {
-    type: 'root';
-    children: (MMNodeC | MMComment | string)[];
+export interface MMNodeV {
+    type: '$v';
+    children: (string | MMComment)[];
 }
 
-export type MMNode = MMNodeMM | MMNodeC;
+export interface MMNodeMM {
+    type: 'root';
+    children: (MMNodeC | MMNodeV | MMComment | string)[];
+}
+
+export type MMNode = MMNodeMM | MMNodeC | MMNodeV;
