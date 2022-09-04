@@ -17,11 +17,17 @@ export const parse = (text: string): MMNodeMM => {
     };
 
     checkmm.parsec = () => {
+        const parent = stack.top();
+
+        if (parent.type !== 'root') {
+            throw new Error(`parsec unexpected parent node type ${parent.type}`);
+        }
+
         const c: MMNodeC = {type: '$c', children: []};
         stack.push(c)
         parsec();
         stack.pop();
-        stack.top().children.push(c as any);
+        parent.children.push(c);
     }
 
     checkmm.tokens = new MonitoredTokenArray({
