@@ -23,21 +23,37 @@ export const parse = (text: string): MMNodeMM => {
             throw new Error(`parsec unexpected parent node type ${parent.type}`);
         }
 
-        const c: MMNodeC = {type: '$c', children: []};
-        stack.push(c)
+        const c: MMNodeC = { type: '$c', children: [] };
+        stack.push(c);
         parsec();
         stack.pop();
         parent.children.push(c);
-    }
+    };
 
     checkmm.tokens = new MonitoredTokenArray({
-        onToken: token => token !== '$(',
+        onToken: token => {
+            if (token === '$(') {
+                const comment = comments.pop();
+
+                if (typeof comment !== 'string') {
+                    throw new Error('Somehow ran out of comments');
+                }
+
+                stack.top().children.push({ type: '$(', text: comment });
+                return false;
+            }
+
+            return true;
+        },
         onPop: token => stack.top().children.push(token),
     });
 
     checkmm.data = text;
 
     while (checkmm.readtokenstofileinclusion()) {}
+
+    comments.reverse();
+
     checkmm.processtokens();
 
     return mmNode;
