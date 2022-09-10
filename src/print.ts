@@ -9,29 +9,33 @@ const printComment = (node: MMComment): prettier.Doc => {
 
 const printc = (node: MMNodeC): prettier.Doc => {
     return group(
-        join(
-            line,
-            node.children.map(child => {
+        join(line, [
+            '$c',
+            ...node.children.map(child => {
                 if (typeof child === 'string') {
                     return child;
                 } else {
                     return printComment(child);
                 }
             }),
-        ),
+            '$.',
+        ]),
     );
 };
 
 const printv = (node: MMNodeV): prettier.Doc => {
-    return join(
-        line,
-        node.children.map(child => {
-            if (typeof child === 'string') {
-                return child;
-            } else {
-                return printComment(child);
-            }
-        }),
+    return group(
+        join(line, [
+            '$v',
+            ...node.children.map(child => {
+                if (typeof child === 'string') {
+                    return child;
+                } else {
+                    return printComment(child);
+                }
+            }),
+            '$.',
+        ]),
     );
 };
 
