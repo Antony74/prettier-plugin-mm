@@ -1,3 +1,5 @@
+// Runs the plugin without going via Prettier, which is convenient for debugging
+
 import fs from 'fs/promises';
 import path from 'path';
 import { parse } from './parse';
@@ -22,6 +24,7 @@ const main = async () => {
 
     const parseTree = parse(text);
     const output = print({ getValue: () => parseTree } as prettier.AstPath, options as prettier.ParserOptions);
+    fs.writeFile(filename, output);
     console.log(output);
 };
 
