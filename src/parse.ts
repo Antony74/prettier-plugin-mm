@@ -144,7 +144,7 @@ export const parse = (text: string): MMNodeMM => {
 
         const index = mmp.children.findIndex(child => child === '$=');
 
-        mmp.proof = mmp.children.slice(index);
+        mmp.proof = mmp.children.slice(index + 1);
         mmp.children = mmp.children.slice(0, index);
 
         parent.children.push(mmp);

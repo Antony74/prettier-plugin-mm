@@ -36,46 +36,51 @@ const printv = (node: MMNodeV): prettier.Doc => {
 };
 
 const printf = (node: MMNodeF) => {
-    return join(line, [...node.children.map(printStringOrComment)]);
+    return join(line, ['$f', ...node.children.map(printStringOrComment), '$.']);
 };
 
 const printa = (node: MMNodeA) => {
-    return join(line, [...node.children.map(printStringOrComment)]);
+    return join(line, ['$a', ...node.children.map(printStringOrComment), '$.']);
 };
 
 const printe = (node: MMNodeE) => {
-    return join(line, [...node.children.map(printStringOrComment)]);
+    return join(line, ['$e', ...node.children.map(printStringOrComment), '$.']);
 };
 
 const printp = (node: MMNodeP) => {
     return join(line, [
+        '$p',
         group(join(line, [...node.children.map(printStringOrComment)])),
+        '$=',
         group(join(line, [...node.proof.map(printStringOrComment)])),
+        '$.',
     ]);
 };
 
 const printlabel = (node: MMNodeLabel) => {
-    return join(line, [
-        node.label,
-        ...node.children.map(child => {
-            if (typeof child === 'string') {
-                throw new Error(`String '${child}' found in label`);
-            }
+    return group(
+        join(line, [
+            node.label,
+            ...node.children.map(child => {
+                if (typeof child === 'string') {
+                    throw new Error(`String '${child}' found in label`);
+                }
 
-            switch (child.type) {
-                case '$(':
-                    return printComment(child);
-                case '$f':
-                    return printf(child);
-                case '$a':
-                    return printa(child);
-                case '$e':
-                    return printe(child);
-                case '$p':
-                    return printp(child);
-            }
-        }),
-    ]);
+                switch (child.type) {
+                    case '$(':
+                        return printComment(child);
+                    case '$f':
+                        return printf(child);
+                    case '$a':
+                        return printa(child);
+                    case '$e':
+                        return printe(child);
+                    case '$p':
+                        return printp(child);
+                }
+            }),
+        ]),
+    );
 };
 
 const printScopeChildren = (node: MMNodeMM | MMNodeScope): prettier.Doc => {
