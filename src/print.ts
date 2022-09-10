@@ -1,5 +1,5 @@
 import prettier from 'prettier';
-import { MMComment, MMNode, MMNodeC, MMNodeLabel, MMNodeMM, MMNodeScope, MMNodeV } from './parseTreeFormat';
+import { MMComment, MMNode, MMNodeC, MMNodeF, MMNodeLabel, MMNodeMM, MMNodeScope, MMNodeV } from './parseTreeFormat';
 
 const { group, hardline, join, line } = prettier.doc.builders;
 
@@ -7,36 +7,24 @@ const printComment = (node: MMComment): prettier.Doc => {
     return join('', ['$(', node.text, '$)']);
 };
 
+const printStringOrComment = (node: string | MMComment): prettier.Doc => {
+    if (typeof node === 'string') {
+        return node;
+    } else {
+        return printComment(node);
+    }
+};
+
 const printc = (node: MMNodeC): prettier.Doc => {
-    return group(
-        join(line, [
-            '$c',
-            ...node.children.map(child => {
-                if (typeof child === 'string') {
-                    return child;
-                } else {
-                    return printComment(child);
-                }
-            }),
-            '$.',
-        ]),
-    );
+    return group(join(line, ['$c', ...node.children.map(printStringOrComment), '$.']));
 };
 
 const printv = (node: MMNodeV): prettier.Doc => {
-    return group(
-        join(line, [
-            '$v',
-            ...node.children.map(child => {
-                if (typeof child === 'string') {
-                    return child;
-                } else {
-                    return printComment(child);
-                }
-            }),
-            '$.',
-        ]),
-    );
+    return group(join(line, ['$v', ...node.children.map(printStringOrComment), '$.']));
+};
+
+const printf = (node: MMNodeF) => {
+    return join(line, [...node.children.map(printStringOrComment)]);
 };
 
 const printlabel = (node: MMNodeLabel) => {
@@ -76,30 +64,33 @@ const printmm = (node: MMNodeMM): prettier.Doc => {
 };
 
 export const print = (ast: prettier.AstPath<MMNode>, options: prettier.ParserOptions): string => {
-    const rootNode = ast.getValue();
+    const node = ast.getValue();
 
-    if (rootNode === null) {
+    if (node === null) {
         throw new Error('No node');
     }
 
     let doc: prettier.Doc;
 
-    switch (rootNode.type) {
+    switch (node.type) {
         case 'root':
-            doc = printmm(rootNode);
+            doc = printmm(node);
             break;
         case '${':
-            doc = printscope(rootNode);
+            doc = printscope(node);
             break;
         case '$c':
-            doc = printc(rootNode);
+            doc = printc(node);
             break;
         case '$v':
-            doc = printv(rootNode);
+            doc = printv(node);
             break;
         case 'label':
-            doc = printlabel(rootNode);
+            doc = printlabel(node);
             break;
+        case '$f':
+            doc = printf(node);
+        break
     }
 
     const output = prettier.doc.printer.printDocToString(doc, options).formatted;

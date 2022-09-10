@@ -13,10 +13,15 @@ export interface MMNodeV {
     children: (string | MMComment)[];
 }
 
+export interface MMNodeF {
+    type: '$f';
+    children: (string | MMComment)[];
+}
+
 export interface MMNodeLabel {
     type: 'label';
     label: string;
-    children: (string | MMComment)[];
+    children: (string | MMNodeF | MMComment)[];
 }
 
 export interface MMNodeScope {
@@ -28,4 +33,4 @@ export interface MMNodeMM extends Pick<MMNodeScope, 'children'> {
     type: 'root';
 }
 
-export type MMNode = MMNodeMM | MMNodeC | MMNodeV | MMNodeLabel | MMNodeScope;
+export type MMNode = MMNodeMM | MMNodeC | MMNodeV | MMNodeLabel | MMNodeScope | MMNodeF;
