@@ -39,51 +39,50 @@ const printv = (node: MMNodeV): prettier.Doc => {
     return joinFill(line, ['$v', ...node.children.map(printStringOrComment), '$.']);
 };
 
-const printf = (node: MMNodeF) => {
-    return joinFill(line, ['$f', ...node.children.map(printStringOrComment), '$.']);
+const printf = (label: string, node: MMNodeF) => {
+    return joinFill(line, [label, '$f', ...node.children.map(printStringOrComment), '$.']);
 };
 
-const printa = (node: MMNodeA) => {
-    return joinFill(line, ['$a', ...node.children.map(printStringOrComment), '$.']);
+const printa = (label: string, node: MMNodeA) => {
+    return joinFill(line, [label, '$a', ...node.children.map(printStringOrComment), '$.']);
 };
 
-const printe = (node: MMNodeE) => {
-    return joinFill(line, ['$e', ...node.children.map(printStringOrComment), '$.']);
+const printe = (label: string, node: MMNodeE) => {
+    return joinFill(line, [label, '$e', ...node.children.map(printStringOrComment), '$.']);
 };
 
-const printp = (node: MMNodeP) => {
-    return group(
-        join(line, [
-            joinFill(line, ['$p', ...node.children.map(printStringOrComment), '$=']),
-            indent(joinFill(line, [...node.proof.map(printStringOrComment), '$.'])),
-        ]),
+const printp = (label: string, node: MMNodeP) => {
+    return indent(
+        group(
+            join(line, [
+                joinFill(line, [label, '$p', ...node.children.map(printStringOrComment), '$=']),
+                joinFill(line, [...node.proof.map(printStringOrComment), '$.']),
+            ]),
+        ),
     );
 };
 
 const printlabel = (node: MMNodeLabel) => {
-    return group(
-        join(line, [
-            node.label,
-            ...node.children.map(child => {
-                if (typeof child === 'string') {
-                    throw new Error(`String '${child}' found in label`);
-                }
+    return joinFill(line, [
+        ...node.children.map(child => {
+            if (typeof child === 'string') {
+                throw new Error(`String '${child}' found in label`);
+            }
 
-                switch (child.type) {
-                    case '$(':
-                        return printComment(child);
-                    case '$f':
-                        return printf(child);
-                    case '$a':
-                        return printa(child);
-                    case '$e':
-                        return printe(child);
-                    case '$p':
-                        return printp(child);
-                }
-            }),
-        ]),
-    );
+            switch (child.type) {
+                case '$(':
+                    return printComment(child);
+                case '$f':
+                    return printf(node.label, child);
+                case '$a':
+                    return printa(node.label, child);
+                case '$e':
+                    return printe(node.label, child);
+                case '$p':
+                    return printp(node.label, child);
+            }
+        }),
+    ]);
 };
 
 const printScopeChildren = (node: MMNodeMM | MMNodeScope): prettier.Doc => {
@@ -144,17 +143,13 @@ export const print = (ast: prettier.AstPath<MMNode>, options: prettier.ParserOpt
             doc = printlabel(node);
             break;
         case '$f':
-            doc = printf(node);
-            break;
+            throw new Error(`Can't print ${node.type}, print the label`);
         case '$a':
-            doc = printa(node);
-            break;
+            throw new Error(`Can't print ${node.type}, print the label`);
         case '$e':
-            doc = printe(node);
-            break;
+            throw new Error(`Can't print ${node.type}, print the label`);
         case '$p':
-            doc = printp(node);
-            break;
+            throw new Error(`Can't print ${node.type}, print the label`);
     }
 
     const output = prettier.doc.printer.printDocToString(doc, options).formatted;
