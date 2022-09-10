@@ -1,6 +1,7 @@
 export interface MMComment {
     type: '$(';
     text: string;
+    trailing: string;
 }
 
 export interface MMNodeC {

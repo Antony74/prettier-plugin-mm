@@ -1,19 +1,41 @@
 import checkmm from 'checkmm';
 import { MonitoredTokenArray } from './MonitoredTokenArray';
-import { MMNode, MMNodeA, MMNodeC, MMNodeE, MMNodeF, MMNodeLabel, MMNodeMM, MMNodeP, MMNodeV } from './parseTreeFormat';
+import {
+    MMComment,
+    MMNode,
+    MMNodeA,
+    MMNodeC,
+    MMNodeE,
+    MMNodeF,
+    MMNodeLabel,
+    MMNodeMM,
+    MMNodeP,
+    MMNodeV,
+} from './parseTreeFormat';
 
 export const parse = (text: string): MMNodeMM => {
-    const comments: string[] = [];
+    const comments: MMComment[] = [];
     const mmNode: MMNode = { type: 'root', children: [] };
     const stack = checkmm.std.createstack<MMNode>([mmNode]);
 
     const { parsea, parsec, parsee, parsef, parselabel, parsep, parsev, readcomment } = checkmm;
 
     checkmm.readcomment = () => {
-        const comment = readcomment();
-        comments.push(comment);
+        const text = readcomment();
+        let trailing = '';
+        let position = checkmm.dataPosition;
+        while (position < checkmm.data.length && (checkmm.data[position] === '\n' || checkmm.data[position] === '\r')) {
+            if (checkmm.data[position] === '\n') {
+                trailing += '\n';
+            } else if (checkmm.data[position] === '\r') {
+            } else {
+                break;
+            }
+            ++position;
+        }
+        comments.push({ type: '$(', text, trailing });
         checkmm.tokens.push('$(');
-        return comment;
+        return text;
     };
 
     checkmm.parsec = () => {
@@ -156,11 +178,11 @@ export const parse = (text: string): MMNodeMM => {
                 case '$(': {
                     const comment = comments.pop();
 
-                    if (typeof comment !== 'string') {
+                    if (!comment) {
                         throw new Error('Somehow ran out of comments');
                     }
 
-                    stack.top().children.push({ type: '$(', text: comment });
+                    stack.top().children.push(comment);
                     return false;
                 }
             }

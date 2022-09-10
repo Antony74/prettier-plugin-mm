@@ -19,44 +19,48 @@ const joinFill = (sep: prettier.Doc, docs: prettier.Doc[]): prettier.Doc => {
     return fill(docs.reduce((acc: prettier.Doc[], item) => (acc.length ? [...acc, sep, item] : [item]), []));
 };
 
-const printComment = (node: MMComment): prettier.Doc => {
-    return ['$(', node.text, '$)'].join('');
+const printComment = (node: MMComment, reduceTrailing: boolean): prettier.Doc => {
+    const trailing = reduceTrailing ? node.trailing.slice(1, 2) : node.trailing.slice(0, 2);
+    const arr = ['$(', node.text, '$)', trailing];
+    return arr.join('');
 };
 
-const printStringOrComment = (node: string | MMComment): prettier.Doc => {
-    if (typeof node === 'string') {
-        return node;
-    } else {
-        return printComment(node);
-    }
-};
+const printStringOrComment =
+    (reduceTrailing: boolean) =>
+    (node: string | MMComment): prettier.Doc => {
+        if (typeof node === 'string') {
+            return node;
+        } else {
+            return printComment(node, reduceTrailing);
+        }
+    };
 
 const printc = (node: MMNodeC): prettier.Doc => {
-    return joinFill(line, ['$c', ...node.children.map(printStringOrComment), '$.']);
+    return joinFill(line, ['$c', ...node.children.map(printStringOrComment(false)), '$.']);
 };
 
 const printv = (node: MMNodeV): prettier.Doc => {
-    return joinFill(line, ['$v', ...node.children.map(printStringOrComment), '$.']);
+    return joinFill(line, ['$v', ...node.children.map(printStringOrComment(false)), '$.']);
 };
 
 const printf = (label: string, node: MMNodeF) => {
-    return joinFill(line, [label, '$f', ...node.children.map(printStringOrComment), '$.']);
+    return joinFill(line, [label, '$f', ...node.children.map(printStringOrComment(false)), '$.']);
 };
 
 const printa = (label: string, node: MMNodeA) => {
-    return joinFill(line, [label, '$a', ...node.children.map(printStringOrComment), '$.']);
+    return joinFill(line, [label, '$a', ...node.children.map(printStringOrComment(false)), '$.']);
 };
 
 const printe = (label: string, node: MMNodeE) => {
-    return joinFill(line, [label, '$e', ...node.children.map(printStringOrComment), '$.']);
+    return joinFill(line, [label, '$e', ...node.children.map(printStringOrComment(false)), '$.']);
 };
 
 const printp = (label: string, node: MMNodeP) => {
     return indent(
         group(
             join(line, [
-                joinFill(line, [label, '$p', ...node.children.map(printStringOrComment), '$=']),
-                joinFill(line, [...node.proof.map(printStringOrComment), '$.']),
+                joinFill(line, [label, '$p', ...node.children.map(printStringOrComment(false)), '$=']),
+                joinFill(line, [...node.proof.map(printStringOrComment(false)), '$.']),
             ]),
         ),
     );
@@ -71,7 +75,7 @@ const printlabel = (node: MMNodeLabel) => {
 
             switch (child.type) {
                 case '$(':
-                    return printComment(child);
+                    return printComment(child, false);
                 case '$f':
                     return printf(node.label, child);
                 case '$a':
@@ -95,7 +99,7 @@ const printScopeChildren = (node: MMNodeMM | MMNodeScope): prettier.Doc => {
 
             switch (child.type) {
                 case '$(':
-                    return printComment(child);
+                    return printComment(child, true);
                 case '$c':
                     return printc(child);
                 case '$v':
