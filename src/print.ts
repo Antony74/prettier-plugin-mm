@@ -13,10 +13,14 @@ import {
     MMNodeV,
 } from './parseTreeFormat';
 
-const { group, hardline, join, line } = prettier.doc.builders;
+const { fill, group, hardline, indent, join, line } = prettier.doc.builders;
+
+const joinFill = (sep: prettier.Doc, docs: prettier.Doc[]): prettier.Doc => {
+    return fill(docs.reduce((acc: prettier.Doc[], item) => (acc.length ? [...acc, sep, item] : [item]), []));
+};
 
 const printComment = (node: MMComment): prettier.Doc => {
-    return join('', ['$(', node.text, '$)']);
+    return ['$(', node.text, '$)'].join('');
 };
 
 const printStringOrComment = (node: string | MMComment): prettier.Doc => {
@@ -28,33 +32,32 @@ const printStringOrComment = (node: string | MMComment): prettier.Doc => {
 };
 
 const printc = (node: MMNodeC): prettier.Doc => {
-    return group(join(line, ['$c', ...node.children.map(printStringOrComment), '$.']));
+    return joinFill(line, ['$c', ...node.children.map(printStringOrComment), '$.']);
 };
 
 const printv = (node: MMNodeV): prettier.Doc => {
-    return group(join(line, ['$v', ...node.children.map(printStringOrComment), '$.']));
+    return joinFill(line, ['$v', ...node.children.map(printStringOrComment), '$.']);
 };
 
 const printf = (node: MMNodeF) => {
-    return join(line, ['$f', ...node.children.map(printStringOrComment), '$.']);
+    return joinFill(line, ['$f', ...node.children.map(printStringOrComment), '$.']);
 };
 
 const printa = (node: MMNodeA) => {
-    return join(line, ['$a', ...node.children.map(printStringOrComment), '$.']);
+    return joinFill(line, ['$a', ...node.children.map(printStringOrComment), '$.']);
 };
 
 const printe = (node: MMNodeE) => {
-    return join(line, ['$e', ...node.children.map(printStringOrComment), '$.']);
+    return joinFill(line, ['$e', ...node.children.map(printStringOrComment), '$.']);
 };
 
 const printp = (node: MMNodeP) => {
-    return join(line, [
-        '$p',
-        group(join(line, [...node.children.map(printStringOrComment)])),
-        '$=',
-        group(join(line, [...node.proof.map(printStringOrComment)])),
-        '$.',
-    ]);
+    return group(
+        join(line, [
+            joinFill(line, ['$p', ...node.children.map(printStringOrComment), '$=']),
+            indent(joinFill(line, [...node.proof.map(printStringOrComment), '$.'])),
+        ]),
+    );
 };
 
 const printlabel = (node: MMNodeLabel) => {
