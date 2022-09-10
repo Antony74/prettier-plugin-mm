@@ -8,6 +8,7 @@ import {
     MMNodeF,
     MMNodeLabel,
     MMNodeMM,
+    MMNodeP,
     MMNodeScope,
     MMNodeV,
 } from './parseTreeFormat';
@@ -46,6 +47,13 @@ const printe = (node: MMNodeE) => {
     return join(line, [...node.children.map(printStringOrComment)]);
 };
 
+const printp = (node: MMNodeP) => {
+    return join(line, [
+        group(join(line, [...node.children.map(printStringOrComment)])),
+        group(join(line, [...node.proof.map(printStringOrComment)])),
+    ]);
+};
+
 const printlabel = (node: MMNodeLabel) => {
     return join(line, [
         node.label,
@@ -63,6 +71,8 @@ const printlabel = (node: MMNodeLabel) => {
                     return printa(child);
                 case '$e':
                     return printe(child);
+                case '$p':
+                    return printp(child);
             }
         }),
     ]);
@@ -133,6 +143,9 @@ export const print = (ast: prettier.AstPath<MMNode>, options: prettier.ParserOpt
             break;
         case '$e':
             doc = printe(node);
+            break;
+        case '$p':
+            doc = printp(node);
             break;
     }
 

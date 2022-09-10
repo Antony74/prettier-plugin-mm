@@ -1,13 +1,13 @@
 import checkmm from 'checkmm';
 import { MonitoredTokenArray } from './MonitoredTokenArray';
-import { MMNode, MMNodeA, MMNodeC, MMNodeE, MMNodeF, MMNodeLabel, MMNodeMM, MMNodeV } from './parseTreeFormat';
+import { MMNode, MMNodeA, MMNodeC, MMNodeE, MMNodeF, MMNodeLabel, MMNodeMM, MMNodeP, MMNodeV } from './parseTreeFormat';
 
 export const parse = (text: string): MMNodeMM => {
     const comments: string[] = [];
     const mmNode: MMNode = { type: 'root', children: [] };
     const stack = checkmm.std.createstack<MMNode>([mmNode]);
 
-    const { parsea, parsec, parsee, parsef, parselabel, parsev, readcomment } = checkmm;
+    const { parsea, parsec, parsee, parsef, parselabel, parsep, parsev, readcomment } = checkmm;
 
     checkmm.readcomment = () => {
         const comment = readcomment();
@@ -122,6 +122,32 @@ export const parse = (text: string): MMNodeMM => {
         parsee(label);
         stack.pop();
         parent.children.push(mme);
+    };
+
+    checkmm.parsep = (label: string) => {
+        const parent = stack.top();
+
+        if (parent.type !== 'label') {
+            throw new Error(`parsep unexpected parent node type ${parent.type}`);
+        }
+
+        const pToken = parent.children.pop();
+
+        if (pToken !== '$p') {
+            throw new Error('parsep: expected $e token');
+        }
+
+        const mmp: MMNodeP = { type: '$p', children: [], proof: [] };
+        stack.push(mmp);
+        parsep(label);
+        stack.pop();
+
+        const index = mmp.children.findIndex(child => child === '$=');
+
+        mmp.proof = mmp.children.slice(index);
+        mmp.children = mmp.children.slice(0, index);
+
+        parent.children.push(mmp);
     };
 
     checkmm.tokens = new MonitoredTokenArray({
