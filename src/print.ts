@@ -13,7 +13,7 @@ import {
     MMNodeV,
 } from './parseTreeFormat';
 
-const { fill, group, hardline, indent, join, line } = prettier.doc.builders;
+const { fill, hardline, indent, join, line } = prettier.doc.builders;
 
 const joinFill = (sep: prettier.Doc, docs: prettier.Doc[]): prettier.Doc => {
     return fill(docs.reduce((acc: prettier.Doc[], item) => (acc.length ? [...acc, sep, item] : [item]), []));
@@ -57,13 +57,10 @@ const printe = (label: string, node: MMNodeE) => {
 
 const printp = (label: string, node: MMNodeP) => {
     return indent(
-        group(
-            join(line, [
-                joinFill(line, [label, '$p', ...node.children.map(printStringOrComment(false)), '$=']),
-                hardline,
-                joinFill(line, [...node.proof.map(printStringOrComment(false)), '$.']),
-            ]),
-        ),
+        join(hardline, [
+            joinFill(line, [label, '$p', ...node.children.map(printStringOrComment(false)), '$=']),
+            joinFill(line, [...node.proof.map(printStringOrComment(false)), '$.']),
+        ]),
     );
 };
 
