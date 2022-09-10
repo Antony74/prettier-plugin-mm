@@ -1,5 +1,15 @@
 import prettier from 'prettier';
-import { MMComment, MMNode, MMNodeC, MMNodeF, MMNodeLabel, MMNodeMM, MMNodeScope, MMNodeV } from './parseTreeFormat';
+import {
+    MMComment,
+    MMNode,
+    MMNodeA,
+    MMNodeC,
+    MMNodeF,
+    MMNodeLabel,
+    MMNodeMM,
+    MMNodeScope,
+    MMNodeV,
+} from './parseTreeFormat';
 
 const { group, hardline, join, line } = prettier.doc.builders;
 
@@ -27,6 +37,10 @@ const printf = (node: MMNodeF) => {
     return join(line, [...node.children.map(printStringOrComment)]);
 };
 
+const printa = (node: MMNodeA) => {
+    return join(line, [...node.children.map(printStringOrComment)]);
+};
+
 const printlabel = (node: MMNodeLabel) => {
     return join(line, [
         node.label,
@@ -40,6 +54,8 @@ const printlabel = (node: MMNodeLabel) => {
                     return printComment(child);
                 case '$f':
                     return printf(child);
+                case '$a':
+                    return printa(child);
             }
         }),
     ]);
@@ -104,6 +120,9 @@ export const print = (ast: prettier.AstPath<MMNode>, options: prettier.ParserOpt
             break;
         case '$f':
             doc = printf(node);
+            break;
+        case '$a':
+            doc = printa(node);
             break;
     }
 
