@@ -1,13 +1,13 @@
 import checkmm from 'checkmm';
 import { MonitoredTokenArray } from './MonitoredTokenArray';
-import { MMNode, MMNodeA, MMNodeC, MMNodeF, MMNodeLabel, MMNodeMM, MMNodeV } from './parseTreeFormat';
+import { MMNode, MMNodeA, MMNodeC, MMNodeE, MMNodeF, MMNodeLabel, MMNodeMM, MMNodeV } from './parseTreeFormat';
 
 export const parse = (text: string): MMNodeMM => {
     const comments: string[] = [];
     const mmNode: MMNode = { type: 'root', children: [] };
     const stack = checkmm.std.createstack<MMNode>([mmNode]);
 
-    const { parsea, parsec, parsef, parselabel, parsev, readcomment } = checkmm;
+    const { parsea, parsec, parsee, parsef, parselabel, parsev, readcomment } = checkmm;
 
     checkmm.readcomment = () => {
         const comment = readcomment();
@@ -104,6 +104,26 @@ export const parse = (text: string): MMNodeMM => {
         parent.children.push(mma);
     };
 
+    checkmm.parsee = (label: string) => {
+        const parent = stack.top();
+
+        if (parent.type !== 'label') {
+            throw new Error(`parsee unexpected parent node type ${parent.type}`);
+        }
+
+        const eToken = parent.children.pop();
+
+        if (eToken !== '$e') {
+            throw new Error('parsee: expected $e token');
+        }
+
+        const mme: MMNodeE = { type: '$e', children: [] };
+        stack.push(mme);
+        parsee(label);
+        stack.pop();
+        parent.children.push(mme);
+    };
+
     checkmm.tokens = new MonitoredTokenArray({
         onToken: token => {
             switch (token) {
@@ -167,8 +187,6 @@ export const parse = (text: string): MMNodeMM => {
     comments.reverse();
 
     checkmm.processtokens();
-
-    //    console.log(JSON.stringify(mmNode, null, 2));
 
     return mmNode;
 };

@@ -4,6 +4,7 @@ import {
     MMNode,
     MMNodeA,
     MMNodeC,
+    MMNodeE,
     MMNodeF,
     MMNodeLabel,
     MMNodeMM,
@@ -41,6 +42,10 @@ const printa = (node: MMNodeA) => {
     return join(line, [...node.children.map(printStringOrComment)]);
 };
 
+const printe = (node: MMNodeE) => {
+    return join(line, [...node.children.map(printStringOrComment)]);
+};
+
 const printlabel = (node: MMNodeLabel) => {
     return join(line, [
         node.label,
@@ -56,6 +61,8 @@ const printlabel = (node: MMNodeLabel) => {
                     return printf(child);
                 case '$a':
                     return printa(child);
+                case '$e':
+                    return printe(child);
             }
         }),
     ]);
@@ -123,6 +130,9 @@ export const print = (ast: prettier.AstPath<MMNode>, options: prettier.ParserOpt
             break;
         case '$a':
             doc = printa(node);
+            break;
+        case '$e':
+            doc = printe(node);
             break;
     }
 
