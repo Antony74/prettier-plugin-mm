@@ -20,9 +20,9 @@ const joinFill = (sep: prettier.Doc, docs: prettier.Doc[]): prettier.Doc => {
 };
 
 const printComment = (node: MMComment, reduceTrailing: boolean): prettier.Doc => {
-    const trailing = reduceTrailing ? node.trailing.slice(1, 2) : node.trailing.slice(0, 2);
-    const arr = ['$(', node.text, '$)', trailing];
-    return arr.join('');
+    const length = Math.min(2, node.trailing.length) - (reduceTrailing ? 1 : 0);
+    const hardlines = Array.from({ length }).map(() => hardline);
+    return join('', ['$(', node.text, '$)', ...hardlines]);
 };
 
 const printStringOrComment =
@@ -60,6 +60,7 @@ const printp = (label: string, node: MMNodeP) => {
         group(
             join(line, [
                 joinFill(line, [label, '$p', ...node.children.map(printStringOrComment(false)), '$=']),
+                hardline,
                 joinFill(line, [...node.proof.map(printStringOrComment(false)), '$.']),
             ]),
         ),
@@ -156,6 +157,6 @@ export const print = (ast: prettier.AstPath<MMNode>, options: prettier.ParserOpt
             throw new Error(`Can't print ${node.type}, print the label`);
     }
 
-    const output = prettier.doc.printer.printDocToString(doc, options).formatted;
+    const output = prettier.doc.printer.printDocToString([doc, hardline], options).formatted;
     return output;
 };
