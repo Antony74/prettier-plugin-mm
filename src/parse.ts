@@ -1,13 +1,13 @@
 import checkmm from 'checkmm';
 import { MonitoredTokenArray } from './MonitoredTokenArray';
-import { MMNode, MMNodeC, MMNodeLabel, MMNodeMM, MMNodeV } from './parseTreeFormat';
+import { MMNode, MMNodeC, MMNodeF, MMNodeLabel, MMNodeMM, MMNodeV } from './parseTreeFormat';
 
 export const parse = (text: string): MMNodeMM => {
     const comments: string[] = [];
     const mmNode: MMNode = { type: 'root', children: [] };
     const stack = checkmm.std.createstack<MMNode>([mmNode]);
 
-    const { readcomment, parsec, parsev, parselabel } = checkmm;
+    const { readcomment, parsec, parsef, parselabel, parsev } = checkmm;
 
     checkmm.readcomment = () => {
         const comment = readcomment();
@@ -54,7 +54,7 @@ export const parse = (text: string): MMNodeMM => {
         const labelToken = parent.children.pop();
 
         if (labelToken !== label) {
-            throw new Error('label expected to match token');
+            throw new Error('parselabel: label expected to match token');
         }
 
         const mmlabel: MMNodeLabel = { type: 'label', label, children: [] };
@@ -62,6 +62,26 @@ export const parse = (text: string): MMNodeMM => {
         parselabel(label);
         stack.pop();
         parent.children.push(mmlabel);
+    };
+
+    checkmm.parsef = (label: string) => {
+        const parent = stack.top();
+
+        if (parent.type !== 'label') {
+            throw new Error(`parsef unexpected parent node type ${parent.type}`);
+        }
+
+        const fToken = parent.children.pop();
+
+        if (fToken !== '$f') {
+            throw new Error('parsef: expected $f token');
+        }
+
+        const mmf: MMNodeF = { type: '$f', children: [] };
+        stack.push(mmf);
+        parsef(label);
+        stack.pop();
+        parent.children.push(mmf);
     };
 
     checkmm.tokens = new MonitoredTokenArray({
@@ -128,7 +148,7 @@ export const parse = (text: string): MMNodeMM => {
 
     checkmm.processtokens();
 
-//    console.log(JSON.stringify(mmNode, null, 2));
+    //    console.log(JSON.stringify(mmNode, null, 2));
 
     return mmNode;
 };

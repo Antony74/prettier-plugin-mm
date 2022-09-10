@@ -28,7 +28,21 @@ const printf = (node: MMNodeF) => {
 };
 
 const printlabel = (node: MMNodeLabel) => {
-    return join(line, [node.label, 'TO DO - labels']);
+    return join(line, [
+        node.label,
+        ...node.children.map(child => {
+            if (typeof child === 'string') {
+                throw new Error(`String '${child}' found in label`);
+            }
+
+            switch (child.type) {
+                case '$(':
+                    return printComment(child);
+                case '$f':
+                    return printf(child);
+            }
+        }),
+    ]);
 };
 
 const printScopeChildren = (node: MMNodeMM | MMNodeScope): prettier.Doc => {
@@ -90,7 +104,7 @@ export const print = (ast: prettier.AstPath<MMNode>, options: prettier.ParserOpt
             break;
         case '$f':
             doc = printf(node);
-        break
+            break;
     }
 
     const output = prettier.doc.printer.printDocToString(doc, options).formatted;
