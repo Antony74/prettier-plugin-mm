@@ -110,7 +110,7 @@ const printScopeChildren = (node: MMNodeMM | MMNodeScope): prettier.Doc => {
 };
 
 const printscope = (node: MMNodeScope): prettier.Doc => {
-    return join(hardline, ['${', printScopeChildren(node), '$}']);
+    return join(hardline, [indent(join(hardline, ['${', printScopeChildren(node)])), '$}']);
 };
 
 const printmm = (node: MMNodeMM): prettier.Doc => {
