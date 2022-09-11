@@ -26,40 +26,39 @@ const printComment = (node: MMComment, reduceTrailing: boolean): prettier.Doc =>
 };
 
 const printStringOrComment =
-    (reduceTrailing: boolean) =>
     (node: string | MMComment): prettier.Doc => {
         if (typeof node === 'string') {
             return node;
         } else {
-            return printComment(node, reduceTrailing);
+            return printComment(node, false);
         }
     };
 
 const printc = (node: MMNodeC): prettier.Doc => {
-    return joinFill(line, ['$c', ...node.children.map(printStringOrComment(false)), '$.']);
+    return joinFill(line, ['$c', ...node.children.map(printStringOrComment), '$.']);
 };
 
 const printv = (node: MMNodeV): prettier.Doc => {
-    return joinFill(line, ['$v', ...node.children.map(printStringOrComment(false)), '$.']);
+    return joinFill(line, ['$v', ...node.children.map(printStringOrComment), '$.']);
 };
 
 const printf = (label: string, node: MMNodeF) => {
-    return joinFill(line, [label, '$f', ...node.children.map(printStringOrComment(false)), '$.']);
+    return joinFill(line, [label, '$f', ...node.children.map(printStringOrComment), '$.']);
 };
 
 const printa = (label: string, node: MMNodeA) => {
-    return joinFill(line, [label, '$a', ...node.children.map(printStringOrComment(false)), '$.']);
+    return joinFill(line, [label, '$a', ...node.children.map(printStringOrComment), '$.']);
 };
 
 const printe = (label: string, node: MMNodeE) => {
-    return joinFill(line, [label, '$e', ...node.children.map(printStringOrComment(false)), '$.']);
+    return joinFill(line, [label, '$e', ...node.children.map(printStringOrComment), '$.']);
 };
 
 const printp = (label: string, node: MMNodeP) => {
     return indent(
         join(hardline, [
-            joinFill(line, [label, '$p', ...node.children.map(printStringOrComment(false)), '$=']),
-            joinFill(line, [...node.proof.map(printStringOrComment(false)), '$.']),
+            joinFill(line, [label, '$p', ...node.children.map(printStringOrComment), '$=']),
+            joinFill(line, [...node.proof.map(printStringOrComment), '$.']),
         ]),
     );
 };
