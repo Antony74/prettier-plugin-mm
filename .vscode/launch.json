@@ -1,0 +1,11 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "command": "npm run debug",
+            "name": "NPM RUN DEBUG",
+            "request": "launch",
+            "type": "node-terminal"
+        },
+    ]
+}

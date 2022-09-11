@@ -25,14 +25,13 @@ const printComment = (node: MMComment, reduceTrailing: boolean): prettier.Doc =>
     return join('', ['$(', node.text, '$)', ...hardlines]);
 };
 
-const printStringOrComment =
-    (node: string | MMComment): prettier.Doc => {
-        if (typeof node === 'string') {
-            return node;
-        } else {
-            return printComment(node, false);
-        }
-    };
+const printStringOrComment = (node: string | MMComment): prettier.Doc => {
+    if (typeof node === 'string') {
+        return node;
+    } else {
+        return printComment(node, false);
+    }
+};
 
 const printc = (node: MMNodeC): prettier.Doc => {
     return joinFill(line, ['$c', ...node.children.map(printStringOrComment), '$.']);
@@ -118,6 +117,51 @@ const printmm = (node: MMNodeMM): prettier.Doc => {
     return printScopeChildren(node);
 };
 
+const removeSoftLineFollowingHardLine = (doc: prettier.Doc): prettier.Doc => {
+    let prevHardline = false;
+
+    const docFilter = (child: prettier.Doc | undefined): child is prettier.Doc => child !== undefined;
+
+    const processNode = (doc: prettier.Doc): prettier.Doc | undefined => {
+        if (Array.isArray(doc)) {
+            return doc.map(processNode).filter(docFilter);
+        } else if (typeof doc === 'string') {
+        } else if (doc.type === 'concat' || doc.type === 'fill') {
+            return { ...doc, parts: doc.parts.map(processNode).filter(docFilter) };
+        } else if (doc.type === 'indent') {
+            const contents = processNode(doc.contents);
+
+            if (contents === undefined) {
+                throw new Error('Indent without contents');
+            }
+
+            return { ...doc, contents };
+        } else if (doc.type === 'line') {
+            if (doc.hard) {
+                prevHardline = true;
+                return doc;
+            } else {
+                if (prevHardline) {
+                    return undefined;
+                }
+            }
+        } else if (doc.type === 'break-parent') {
+            return doc;
+        }
+
+        prevHardline = false;
+        return doc;
+    };
+
+    const newDoc = processNode(doc);
+
+    if (newDoc === undefined) {
+        throw new Error('removeSoftLineFollowingHardLine returning undefined');
+    }
+
+    return newDoc;
+};
+
 export const print = (ast: prettier.AstPath<MMNode>, options: prettier.ParserOptions): string => {
     const node = ast.getValue();
 
@@ -152,6 +196,8 @@ export const print = (ast: prettier.AstPath<MMNode>, options: prettier.ParserOpt
         case '$p':
             throw new Error(`Can't print ${node.type}, print the label`);
     }
+
+    doc = removeSoftLineFollowingHardLine(doc);
 
     const output = prettier.doc.printer.printDocToString([doc, hardline], options).formatted;
     return output;
