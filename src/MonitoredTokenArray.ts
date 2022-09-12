@@ -22,6 +22,10 @@ export class MonitoredTokenArray extends TokenArray {
             return token;
         }
     }
+    empty(): boolean {
+        this.handleDiscards();
+        return super.empty();
+    }
     front() {
         this.handleDiscards();
         return super.front();

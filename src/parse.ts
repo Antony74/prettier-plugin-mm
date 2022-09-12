@@ -55,7 +55,7 @@ export const parse = (text: string): MMNodeMM => {
     checkmm.parsev = () => {
         const parent = stack.top();
 
-        if (parent.type !== 'root') {
+        if (parent.type !== 'root' && parent.type !== '${') {
             throw new Error(`parsev unexpected parent node type ${parent.type}`);
         }
 
