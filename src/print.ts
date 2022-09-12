@@ -188,11 +188,8 @@ export const print = (ast: prettier.AstPath<MMNode>, options: prettier.ParserOpt
             doc = printlabel(node);
             break;
         case '$f':
-            throw new Error(`Can't print ${node.type}, print the label`);
         case '$a':
-            throw new Error(`Can't print ${node.type}, print the label`);
         case '$e':
-            throw new Error(`Can't print ${node.type}, print the label`);
         case '$p':
             throw new Error(`Can't print ${node.type}, print the label`);
     }
