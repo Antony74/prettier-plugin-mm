@@ -3,9 +3,10 @@
     "version": "1.0.0",
     "main": "dist/index.js",
     "scripts": {
-        "debug": "ts-node src/debug.ts",
+        "debug": "ts-node src/debug.ts examples/demo0.mm",
         "example": "tsc && prettier --plugin . examples/demo0.mm",
-        "lint": "eslint ./src --ext .js,.jsx,.ts,.tsx"
+        "lint": "eslint ./src --ext .js,.jsx,.ts,.tsx",
+        "set.mm": "ts-node src/debug.ts examples/set.mm"
     },
     "repository": {
         "type": "git",
