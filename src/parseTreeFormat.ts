@@ -24,6 +24,11 @@ export interface MMNodeA {
     children: (string | MMComment)[];
 }
 
+export interface MMNodeD {
+    type: '$d';
+    children: (string | MMComment)[];
+}
+
 export interface MMNodeE {
     type: '$e';
     children: (string | MMComment)[];
@@ -43,11 +48,21 @@ export interface MMNodeLabel {
 
 export interface MMNodeScope {
     type: '${';
-    children: (MMNodeScope | MMNodeC | MMNodeV | MMNodeLabel | MMComment | string)[];
+    children: (MMNodeScope | MMNodeC | MMNodeV | MMNodeD | MMNodeLabel | MMComment | string)[];
 }
 
 export interface MMNodeMM extends Pick<MMNodeScope, 'children'> {
     type: 'root';
 }
 
-export type MMNode = MMNodeMM | MMNodeC | MMNodeV | MMNodeLabel | MMNodeScope | MMNodeF | MMNodeA | MMNodeE | MMNodeP;
+export type MMNode =
+    | MMNodeMM
+    | MMNodeC
+    | MMNodeV
+    | MMNodeLabel
+    | MMNodeScope
+    | MMNodeF
+    | MMNodeA
+    | MMNodeE
+    | MMNodeP
+    | MMNodeD;

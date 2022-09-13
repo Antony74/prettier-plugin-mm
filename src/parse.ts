@@ -5,6 +5,7 @@ import {
     MMNode,
     MMNodeA,
     MMNodeC,
+    MMNodeD,
     MMNodeE,
     MMNodeF,
     MMNodeLabel,
@@ -18,7 +19,7 @@ export const parse = (text: string): MMNodeMM => {
     const mmNode: MMNode = { type: 'root', children: [] };
     const stack = checkmm.std.createstack<MMNode>([mmNode]);
 
-    const { parsea, parsec, parsee, parsef, parselabel, parsep, parsev, readcomment } = checkmm;
+    const { parsea, parsec, parsed, parsee, parsef, parselabel, parsep, parsev, readcomment } = checkmm;
 
     checkmm.readcomment = () => {
         const text = readcomment();
@@ -50,6 +51,21 @@ export const parse = (text: string): MMNodeMM => {
         parsec();
         stack.pop();
         parent.children.push(c);
+    };
+
+    checkmm.parsed = () => {
+        const parent = stack.top();
+
+        if (parent.type !== 'root' && parent.type !== '${') {
+            throw new Error(`parsed unexpected parent node type ${parent.type}`);
+        }
+
+        const d: MMNodeD = { type: '$d', children: [] };
+        stack.push(d);
+        const result = parsed();
+        stack.pop();
+        parent.children.push(d);
+        return result;
     };
 
     checkmm.parsev = () => {
@@ -193,6 +209,7 @@ export const parse = (text: string): MMNodeMM => {
             switch (token) {
                 case '$c':
                 case '$v':
+                case '$d':
                 case '$.':
                     break;
                 case '${': {

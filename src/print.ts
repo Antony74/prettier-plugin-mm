@@ -4,6 +4,7 @@ import {
     MMNode,
     MMNodeA,
     MMNodeC,
+    MMNodeD,
     MMNodeE,
     MMNodeF,
     MMNodeLabel,
@@ -51,6 +52,10 @@ const printa = (label: string, node: MMNodeA) => {
 
 const printe = (label: string, node: MMNodeE) => {
     return joinFill(line, [label, '$e', ...node.children.map(printStringOrComment), '$.']);
+};
+
+const printd = (node: MMNodeD) => {
+    return joinFill(line, ['$d', ...node.children.map(printStringOrComment), '$.']);
 };
 
 const printp = (label: string, node: MMNodeP) => {
@@ -104,6 +109,8 @@ const printScopeChildren = (node: MMNodeMM | MMNodeScope): prettier.Doc => {
                     return printlabel(child);
                 case '${':
                     return printscope(child);
+                case '$d':
+                    return printd(child);
             }
         }),
     );
@@ -183,6 +190,9 @@ export const print = (ast: prettier.AstPath<MMNode>, options: prettier.ParserOpt
             break;
         case '$v':
             doc = printv(node);
+            break;
+        case '$d':
+            doc = printd(node);
             break;
         case 'label':
             doc = printlabel(node);
