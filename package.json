@@ -6,7 +6,7 @@
         "debug": "ts-node src/debug.ts examples/demo0.mm",
         "example": "tsc && prettier --plugin . examples/demo0.mm",
         "lint": "eslint ./src --ext .js,.jsx,.ts,.tsx",
-        "set.mm": "ts-node src/debug.ts examples/set.mm"
+        "set.mm": "ts-node src/debug.ts ../set.mm/set.mm"
     },
     "repository": {
         "type": "git",
