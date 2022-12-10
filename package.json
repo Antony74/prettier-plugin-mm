@@ -8,7 +8,7 @@
         "example": "tsc && prettier --plugin . examples/demo0.mm",
         "lint": "eslint ./src --ext .js,.jsx,.ts,.tsx",
         "set.mm": "ts-node src/debug.ts ../set.mm/set.mm",
-        "truncate": "ts-node utils/truncate.ts"
+        "truncate": "ts-node src/utils/truncate.ts"
     },
     "repository": {
         "type": "git",
