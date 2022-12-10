@@ -1,4 +1,4 @@
-import { TokenArray } from 'checkmm/dist/tokens';
+import { TokenArray } from 'checkmm';
 
 export interface TokenArrayEvents {
     onToken(token: string): boolean;
